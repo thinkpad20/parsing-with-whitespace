@@ -97,7 +97,7 @@ Now we can try running this code in ghci:
 ```
 ghci> parse parseWord "heyheyhey"
 Right ("heyheyhey", 0)
-```"
+```
 
 
 Alright, now that we have some basics covered, let's move on to a bit more complexity. Here's the next hurdle we encounter: we didn't include a space in our word definition. That means that a line can contain any number of words. This means that we need to write a parser which can string words together. Now, in Parsec, we normally use `many1` for this. The type of `many1` is:
@@ -108,7 +108,6 @@ many1
      Text.Parsec.Prim.ParsecT s u m a
      -> Text.Parsec.Prim.ParsecT s u m [a]
 ```
-''''
 
 
 Or more simply,
@@ -116,14 +115,13 @@ Or more simply,
 ```
 many1 :: Parser a -> Parser [a]
 ```
-''''
+
 
 So, `many1` operates on `Parser`s, not `IParser`s! What to do? Well, before we converted between the two with `runStateT`. But we just passed in 0 then; now, we don't know ahead of time what indent we'll have. But hey! There's a function that does just that!
 
 ```
 get :: MonadState s m -> m s
 ```
-''''
 
 What this is effectively telling us is that we can "pull out" the state. Remember `runStateT` will give us a function `f :: Int -> Parser (a, Int)`. Once we have the indent state, we can push it into `f` a `Parser (a, Int)`. But we only need a `Parser a`, so we can use the `fst` function to drop the Int. Here's the finished product:
 
@@ -145,7 +143,7 @@ We can try it out, and it seems to work:
 ```
 ghci> parse' parseLine "hey hey hey\n"
 Right (["hey","hey","hey"],0)
-```"
+```
 
 OK, so that was kinda painful! Maybe we can smooth that out going forward, but for now let's press on, and see if we can work out indents and dedents, finally!
 
